@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "esm": "^3.2.11",
-    "wpe-lightning-spark": "https://github.com/ashwinikalokhe/Lightning-Spark.git",
+    "wpe-lightning-spark": "git+https://github.com/ashwinikalokhe/Lightning-Spark.git#spark",
     "node-fetch": "^1.7.3"
   },
   "devDependencies": {
