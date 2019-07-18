@@ -1,5 +1,5 @@
 import ux from "./src/ux.mjs";
-import lightningPlatform from "lightning-platform-spark.mjs";
+import lightningPlatform from "wpe-lightning-spark/src/lightning-platform-spark.mjs";
 import lng from "wpe-lightning/src/lightning.mjs";
 lng.Stage.platform = lightningPlatform;
 import fetch from "node-fetch";
