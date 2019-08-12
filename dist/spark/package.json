@@ -3,7 +3,7 @@
   "name": "yourApp",
   "version": "0.0.1",
   "scripts": {
-    "postinstall": "rollup -c"
+    "postinstall": "mkdir lib; cp node_modules/wpe-lightning-spark/dist/lightning-spark.mjs lib/.; rollup -c"
   },
   "dependencies": {
     "esm": "^3.2.11",

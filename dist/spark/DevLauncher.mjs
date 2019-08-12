@@ -1,5 +1,5 @@
 import ux from "./src/ux.mjs";
-import lng from './lib/lightning.mjs';
+import lng from './lib/lightning-spark.mjs';
 import fetch from "node-fetch";
 import keyboard from "./src/keyboard.mjs";
 
