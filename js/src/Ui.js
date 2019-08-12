@@ -2,7 +2,7 @@ import Mediaplayer from "./Mediaplayer.js";
 import NoopMediaplayer from "./NoopMediaplayer.js";
 import ScaledImageTexture from "./ScaledImageTexture.js";
 
-export default class Ui extends lng.Application {
+export default class Ui extends lightning.Application {
 
     constructor(options) {
         options.defaultFontFace = options.defaultFontFace || "RobotoRegular";
@@ -12,7 +12,7 @@ export default class Ui extends lng.Application {
 
     static _template() {
         return {
-            Mediaplayer: {type: lng.Utils.isWeb ? Mediaplayer : NoopMediaplayer, textureMode: Ui.hasOption('texture')},
+            Mediaplayer: {type: lightning.Utils.isWeb ? Mediaplayer : NoopMediaplayer, textureMode: Ui.hasOption('texture')},
             AppWrapper: {}
         };
     }
@@ -41,13 +41,13 @@ export default class Ui extends lng.Application {
     }
 
     _handleBack() {
-        if (lng.Utils.isWeb) {
+        if (lightning.Utils.isWeb) {
             window.close();
         }
     }
 
     static loadFonts(fonts) {
-        if (lng.Utils.isNode) {
+        if (lightning.Utils.isNode) {
             // Font loading not supported. Fonts should be installed in Linux system and then they can be picked up by cairo.
             return Promise.resolve();
         }
@@ -157,11 +157,11 @@ export default class Ui extends lng.Application {
     }
 
     static _getCdnProtocol() {
-        return lng.Utils.isWeb && location.protocol === "https:" ? "https" : "http";
+        return lightning.Utils.isWeb && location.protocol === "https:" ? "https" : "http";
     }
 
     static hasOption(name) {
-        if (lng.Utils.isNode) {
+        if (lightning.Utils.isNode) {
             return false;
         }
 
@@ -169,7 +169,7 @@ export default class Ui extends lng.Application {
     }
 
     static getOption(name) {
-        if (lng.Utils.isNode) {
+        if (lightning.Utils.isNode) {
             return undefined;
         }
 
