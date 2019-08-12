@@ -78,7 +78,7 @@ function getDependencies() {
 function bundleApp() {
     console.log("Generate rollup bundle for app (src/App.js)");
     return rollup.rollup({input: "./src/App.js"}).then(bundle => {
-        return bundle.generate({format: 'esm', banner: 'import ux from "./ux";\nimport lng from "wpe-lightning-spark";\n' + getDependencies()}).then(content => {
+        return bundle.generate({format: 'esm', banner: 'import ux from "./ux";\nimport lng from "../lib/lightning-spark.mjs";\n' + getDependencies()}).then(content => {
             const location = "./dist/" + info.dest + "/src/app.mjs";
             fs.writeFileSync(location, content.code);
         });
@@ -88,7 +88,7 @@ function bundleApp() {
 function bundleUx() {
     console.log("Generate rollup bundle for ux");
     return rollup.rollup({input: dir + "/js/src/ux.js"}).then(bundle => {
-        return bundle.generate({format: 'esm', banner: 'import lng from "wpe-lightning-spark";\n' + getDependencies()}).then(content => {
+        return bundle.generate({format: 'esm', banner: 'import lng from "../lib/lightning-spark.mjs";\n' + getDependencies()}).then(content => {
             const location = "./dist/" + info.dest + "/src/ux.mjs";
             fs.writeFileSync(location, content.code);
         });
