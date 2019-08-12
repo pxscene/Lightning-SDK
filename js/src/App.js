@@ -1,6 +1,6 @@
 import Ui from "./Ui.js";
 
-export default class App extends lightning.Component {
+export default class App extends lng.Component {
 
     static g(c) {
         return c.seekAncestorByType(this);

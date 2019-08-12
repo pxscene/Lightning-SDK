@@ -1,5 +1,5 @@
 import ux from "./src/ux.mjs";
-import lightning from './lib/lightning-spark.mjs';
+import lng from 'wpe-lightning-spark';
 import fetch from "node-fetch";
 import keyboard from "./src/keyboard.mjs";
 
@@ -52,7 +52,7 @@ export default class DevLauncher {
         let options = {stage: {w: 1920, h: 1080}, debug: false, keys: this._getNavigationKeys()};
 
         const config = options.stage;
-        if (ux.Ui.hasOption("720") || (lightning.Utils.isWeb && window.innerHeight === 720)) {
+        if (ux.Ui.hasOption("720") || (lng.Utils.isWeb && window.innerHeight === 720)) {
             config['w'] = 1280;
             config['h'] = 720;
             config['precision'] = 0.6666666667;
@@ -63,7 +63,7 @@ export default class DevLauncher {
             config.useImageWorker = true;
         }
 
-        options = lightning.tools.ObjMerger.merge(options, customOptions);
+        options = lng.tools.ObjMerger.merge(options, customOptions);
 
         return options;
     }
