@@ -1,5 +1,8 @@
 import {} from "./js/lib/lightning-web.js";
-import maf from "./js/src/maf.js";
+// MODIFICATION: removed this lib reference as it is making http calls to a metrological endpoint
+// that is not needed by applications and it also presents potential security concerns
+// additionall lib makes api call just by importing is which hamers testability
+// import maf from "./js/src/maf.js";
 import ux from "./js/src/ux.js";
 
 export default class DevLauncher {
@@ -28,7 +31,7 @@ export default class DevLauncher {
             }, targetTime - currentTime);
         };
     }
-    
+
     launch(appType, lightningOptions, options = {}) {
         this._appType = appType;
         this._options = options;
@@ -68,6 +71,8 @@ export default class DevLauncher {
 
     _addStyles() {
         const style = document.createElement('style');
+        // MODIFICATION - removeds hardcoded black background.
+        // This should be specified by applications not framework
         style.innerText = `
 *,body{
     margin:0;
@@ -77,10 +82,6 @@ export default class DevLauncher {
 canvas {
     position: absolute;
     z-index: 2;
-}
-
-body {
-    background: black;
 }`;
         document.head.appendChild(style);
     }
@@ -100,7 +101,10 @@ body {
     }
 
     _getLightningOptions(customOptions = {}) {
-        let options = {stage: {w: 1920, h: 1080, clearColor: 0x00000000, canvas2d: false}, debug: false, keys: this._getNavigationKeys()};
+        // MODIFICATION - dont need these default mappings - just need an empty array to make
+        // sure the web key event handler is registered properly - this should be changed to allow
+        // application to set the handlers if desired rather than hardcoding
+        let options = {stage: {w: 1920, h: 1080, clearColor: 0x00000000, canvas2d: false}, debug: false, keys: {}};
 
         const config = options.stage;
         if (ux.Ui.hasOption("720") || window.innerHeight === 720) {
@@ -122,30 +126,29 @@ body {
             }
         }
 
-
         options = lng.tools.ObjMerger.merge(options, customOptions);
 
         return options;
     }
 
-    _getNavigationKeys() {
-        return {
-            8: "Back",
-            13: "Enter",
-            27: "Menu",
-            37: "Left",
-            38: "Up",
-            39: "Right",
-            40: "Down",
-            174: "ChannelDown",
-            175: "ChannelUp",
-            178: "Stop",
-            250: "PlayPause",
-            191: "Search", // Use "/" for keyboard
-            409: "Search"
-        };
-    }
-
+    // MODIFICATION - no longer used.
+    // _getNavigationKeys() {
+    //   return {
+    //     8: "Back",
+    //     13: "Enter",
+    //     27: "Menu",
+    //     37: "Left",
+    //     38: "Up",
+    //     39: "Right",
+    //     40: "Down",
+    //     174: "ChannelDown",
+    //     175: "ChannelUp",
+    //     178: "Stop",
+    //     250: "PlayPause",
+    //     191: "Search", // Use "/" for keyboard
+    //     // 409: "Search"
+    //   };
+    // }
 }
 
 DevLauncher._uxPath = "./node_modules/wpe-lightning-sdk/";

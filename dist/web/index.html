@@ -1,9 +1,12 @@
 <!DOCTYPE html>
+<!-- MOD 1: adds referrer meta to prevent url leak when framework call hidden 3rd parties -->
+<!-- MOD 2: removes hardcoded background - app should specify-->
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
     <meta name="description" content="Lightning App"/>
+    <meta name="referrer" content="no-referrer" />
 
     <title>Lightning App</title>
 
@@ -16,10 +19,6 @@
         canvas {
             position: absolute;
             z-index: 2;
-        }
-
-        body {
-            background: black;
         }
     </style>
 
