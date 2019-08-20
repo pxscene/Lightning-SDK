@@ -1,18 +1,28 @@
-import Mediaplayer from "./Mediaplayer.js";
-import NoopMediaplayer from "./NoopMediaplayer.js";
+// MODIFICATION - not all applications need the media player.
+// application should include this for themselves instead of hardcoded
+// dependency in the framwework.
+// import Mediaplayer from "./Mediaplayer.js";
+// import NoopMediaplayer from "./NoopMediaplayer.js";
 import ScaledImageTexture from "./ScaledImageTexture.js";
 
 export default class Ui extends lng.Application {
 
     constructor(options) {
-        options.defaultFontFace = options.defaultFontFace || "RobotoRegular";
+        // MODIFICATION - removed reference to hardcoded Roboto font face
+        // application should be required to define it or it should fall back
+        // on system default
+        //
+        // RobotoRegular was being served from metrological endpoints which may
+        // present some security concerns for consuming applications
+        options.defaultFontFace = options.defaultFontFace;
         super(options);
         this._options = options;
     }
 
     static _template() {
         return {
-            Mediaplayer: {type: lng.Utils.isWeb ? Mediaplayer : NoopMediaplayer, textureMode: Ui.hasOption('texture')},
+            // MODIFICATION - removed reference to media player.
+            // Mediaplayer: {type: lng.Utils.isWeb ? Mediaplayer : NoopMediaplayer, textureMode: Ui.hasOption('texture')},
             AppWrapper: {}
         };
     }
@@ -25,12 +35,14 @@ export default class Ui extends lng.Application {
         return !Ui.hasOption("noImageServer");
     }
 
-    get mediaplayer() {
-        return this.tag("Mediaplayer");
-    }
+    // MODIFICATION - removed reference to media player.
+    // get mediaplayer() {
+    //     return this.tag("Mediaplayer");
+    // }
 
     _active() {
-        this.tag('Mediaplayer').skipRenderToTexture = this._options.skipRenderToTexture;
+        // MODIFICATION - removed reference to media player.
+        // this.tag('Mediaplayer').skipRenderToTexture = this._options.skipRenderToTexture;
     }
 
     startApp(appClass) {
@@ -40,11 +52,19 @@ export default class Ui extends lng.Application {
     stopApp() {
     }
 
-    _handleBack() {
-        if (lng.Utils.isWeb) {
-            window.close();
-        }
-    }
+    // MODIFICATION - window close doesnt work in all environemtns and
+    // can throw an unhandled error
+    //
+    // Also using _handleBack subtly requires clients of this class to register a back handler
+    // correctly which is not documented
+    //
+    // Additionally in our case the keycode that signifies
+    // application exit is context specific and may not map to keyCode 8 as hardcoded by framework
+    // _handleBack() {
+    //     if (lng.Utils.isWeb) {
+    //         window.close();
+    //     }
+    // }
 
     static loadFonts(fonts) {
         if (lng.Utils.isNode) {
@@ -64,10 +84,13 @@ export default class Ui extends lng.Application {
     }
 
     static getFonts() {
+        // MODIFICATION - prevent loading of unneeded fonts
+        // need a way to let application's specify the fonts to use if specified at this level
+
         return [
-            {family: 'RobotoRegular', url: Ui.getPath('fonts/roboto-regular.ttf'), descriptors: {}},
-            {family: 'Material-Icons', url: Ui.getPath('fonts/Material-Icons.ttf'), descriptors: {}}
-        ]
+        //     {family: 'RobotoRegular', url: Ui.getPath('fonts/roboto-regular.ttf'), descriptors: {}},
+        //     {family: 'Material-Icons', url: Ui.getPath('fonts/Material-Icons.ttf'), descriptors: {}}
+        ];
     }
 
     static _states() {
@@ -121,12 +144,13 @@ export default class Ui extends lng.Application {
 
     _setFocusSettings(settings) {
         settings.clearColor = this.stage.getOption('clearColor');
-        settings.mediaplayer = {
-            consumer: null,
-            stream: null,
-            hide: false,
-            videoPos: [0, 0, 1920, 1080]
-        };
+        // MODIFICATION - removed reference to media player
+        // settings.mediaplayer = {
+        //     consumer: null,
+        //     stream: null,
+        //     hide: false,
+        //     videoPos: [0, 0, 1920, 1080]
+        // };
     }
 
     _handleFocusSettings(settings) {
@@ -135,13 +159,16 @@ export default class Ui extends lng.Application {
             this.stage.setClearColor(settings.clearColor);
         }
 
-        if (this.tag("Mediaplayer").attached) {
-            this.tag("Mediaplayer").updateSettings(settings.mediaplayer);
-        }
+        // MODIFICATION - removed reference to media player
+        // if (this.tag("Mediaplayer").attached) {
+        //     this.tag("Mediaplayer").updateSettings(settings.mediaplayer);
+        // }
     }
 
     static getProxyUrl(url, opts = {}) {
-        return this._getCdnProtocol() + "://cdn.metrological.com/proxy" + this.getQueryString(url, opts);
+        throw new Error("DONT USE");
+        // MODIFICATION - removing call out to a metrological cdn - security concerns
+        //return this._getCdnProtocol() + "://cdn.metrological.com/proxy" + this.getQueryString(url, opts);
     }
 
     static getImage(url, opts = {}) {
@@ -153,12 +180,15 @@ export default class Ui extends lng.Application {
     }
 
     static getQrUrl(url, opts = {}) {
-        return this._getCdnProtocol() + "://cdn.metrological.com/qr" + this.getQueryString(url, opts, "q");
+        throw new Error("DONT USE");
+        // MODIFICATION - removing call out to a metrological cdn - security concerns
+        //return this._getCdnProtocol() + "://cdn.metrological.com/qr" + this.getQueryString(url, opts, "q");
     }
 
-    static _getCdnProtocol() {
-        return lng.Utils.isWeb && location.protocol === "https:" ? "https" : "http";
-    }
+    // MODIFICATION - unused code, no longer needed
+    // static _getCdnProtocol() {
+    //     return lng.Utils.isWeb && location.protocol === "https:" ? "https" : "http";
+    // }
 
     static hasOption(name) {
         if (lng.Utils.isNode) {
@@ -176,15 +206,16 @@ export default class Ui extends lng.Application {
         return new URL(document.location.href).searchParams.get(name);
     }
 
-    static getQueryString(url, opts, key = "url") {
-        let str = `?operator=${encodeURIComponent(this.getOption('operator') || 'metrological')}`;
-        const keys = Object.keys(opts);
-        keys.forEach(key => {
-            str += "&" + encodeURIComponent(key) + "=" + encodeURIComponent("" + opts[key]);
-        });
-        str += `&${key}=${encodeURIComponent(url)}`;
-        return str;
-    }
+    // MODIFICATION - unused code, no longer needed
+    // static getQueryString(url, opts, key = "url") {
+    //     let str = `?operator=${encodeURIComponent(this.getOption('operator') || 'metrological')}`;
+    //     const keys = Object.keys(opts);
+    //     keys.forEach(key => {
+    //         str += "&" + encodeURIComponent(key) + "=" + encodeURIComponent("" + opts[key]);
+    //     });
+    //     str += `&${key}=${encodeURIComponent(url)}`;
+    //     return str;
+    // }
 
 
 }

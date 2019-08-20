@@ -18,22 +18,23 @@ function startApp() {
         };
     }
 
-    var navigationKeys = {
-        8: "Back",
-        13: "Enter",
-        27: "Back",
-        10009: "Back",
-        37: "Left",
-        38: "Up",
-        39: "Right",
-        40: "Down",
-        174: "ChannelDown",
-        175: "ChannelUp",
-        178: "Stop",
-        250: "PlayPause",
-        191: "Search", // Use "/" for keyboard
-        409: "Search"
-    };
+    // MODIFICATION - no longer used.
+    // var navigationKeys = {
+    //     8: "Back",
+    //     13: "Enter",
+    //     27: "Back",
+    //     10009: "Back",
+    //     37: "Left",
+    //     38: "Up",
+    //     39: "Right",
+    //     40: "Down",
+    //     174: "ChannelDown",
+    //     175: "ChannelUp",
+    //     178: "Stop",
+    //     250: "PlayPause",
+    //     191: "Search", // Use "/" for keyboard
+    //     409: "Search"
+    // };
 
     const memoryPressure = parseInt(ux.Ui.getOption('memoryPressure')) || 16e6;
     console.log('GPU memory pressure: ' + memoryPressure);
@@ -43,10 +44,14 @@ function startApp() {
             w: 1920,
             h: 1080,
             clearColor: ux.Ui.getOption('transparentBg') === "0" ? 0xFF000000 : 0x00000000,
-            defaultFontFace: 'RobotoRegular',
+            // MODIFICATION - default font face should be specified by applications
+            // defaultFontFace: 'RobotoRegular',
             memoryPressure: memoryPressure,
             canvas2d: ux.Ui.hasOption('c2d')
-        }, debug: false, keys: navigationKeys
+            // MODIFICATION - dont need these default mappings - just need an empty array to make
+            // sure the web key event handler is registered properly - this should be changed to allow
+            // application to set the handlers if desired rather than hardcoding
+        }, debug: false, keys: {}
     };
 
     const config = options.stage;
@@ -109,10 +114,10 @@ function loadScript(src) {
     });
 }
 
-
+// MODIFICATION - removing call to metrological cause its a potentiual security issue
 // Fetch app store to ensure that proxy/image servers firewall is opened.
-fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
-});
+// fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
+// });
 
 const supportsEs6 = isSupportingES6();
 const folder = supportsEs6 ? "src" : "src.es5";
