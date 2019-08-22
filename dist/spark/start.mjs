@@ -12,4 +12,4 @@ sparkscene.on('onClose', function(e) {
     launcher._stopApp();
 });
 
-launcher.launch(App, {debug:false}, {useInspector: false});
+launcher.launch(App, {debug:false, h:sparkscene.h}, {useInspector: false});
