@@ -4,11 +4,14 @@ const fs = require("fs");
 
 const dir = __dirname + "/..";
 
+const LNG_PATH = require.resolve('wpe-lightning-spark/dist/lightning-spark.js');
+
 const info = {};
 getName()
     .then(() => ensureDir())
     .then(() => copySkeleton())
     .then(() => ensureSrcDirs())
+    .then(() => copyLightning())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -60,6 +63,10 @@ function copyUxFiles() {
     return exec("cp -r " + dir + "/static-ux ./dist/" + info.dest);
 }
 
+function copyLightning() {
+    return exec("cp -r " + LNG_PATH + " ./dist/" + info.dest + "/src/");
+}
+
 function copyAppFiles() {
     if (fs.existsSync("./static")) {
         return exec("cp -r ./static ./dist/" + info.dest);
@@ -78,7 +85,7 @@ function getDependencies() {
 function bundleApp() {
     console.log("Generate rollup bundle for app (src/App.js)");
     return rollup.rollup({input: "./src/App.js"}).then(bundle => {
-        return bundle.generate({format: 'esm', banner: 'import ux from "./ux";\nimport lng from "wpe-lightning-spark";\n' + getDependencies()}).then(content => {
+        return bundle.generate({format: 'esm', banner: 'import ux from "./ux";\nimport * as lng from "./lightning-spark.js";\n' + getDependencies()}).then(content => {
             const location = "./dist/" + info.dest + "/src/app.mjs";
             fs.writeFileSync(location, content.code);
         });
@@ -88,7 +95,7 @@ function bundleApp() {
 function bundleUx() {
     console.log("Generate rollup bundle for ux");
     return rollup.rollup({input: dir + "/js/src/ux.js"}).then(bundle => {
-        return bundle.generate({format: 'esm', banner: 'import lng from "wpe-lightning-spark";\n' + getDependencies()}).then(content => {
+        return bundle.generate({format: 'esm', banner: 'import * as lng from "./lightning-spark.js";\n' + getDependencies()}).then(content => {
             const location = "./dist/" + info.dest + "/src/ux.mjs";
             fs.writeFileSync(location, content.code);
         });
