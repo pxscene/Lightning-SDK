@@ -48,7 +48,7 @@ function getName() {
 
 function ensureDir() {
     info.dest = "spark";
-    return exec("mkdir -p ./dist");
+    return exec("rm -rf ./dist/" + info.dest).then(() => exec("mkdir -p ./dist"));
 }
 
 function copySkeleton() {
