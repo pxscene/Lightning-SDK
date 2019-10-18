@@ -15,6 +15,7 @@ getName()
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
+    .then(() => bundleDevLauncher())
     .then(() => bundleUx())
     .then(() => bundleApp())
     .then(() => console.log('Spark release created! ' + process.cwd() + "/dist/" + info.dest))
@@ -80,6 +81,16 @@ function getDependencies() {
         'import fetch from "node-fetch";',
         'const Headers = fetch.Headers;'
     ].join("\n") + "\n\n";
+}
+
+function bundleDevLauncher() {
+    console.log("Generate rollup bundle for app DevLauncher.mjs");
+    return rollup.rollup({input: dir + "/dist/spark/DevLauncher.mjs"}).then(bundle => {
+        return bundle.generate({format: 'esm', banner: 'import ux from "./src/ux";\nimport lng from "./src/lightning-spark";\n' + getDependencies()}).then(content => {
+            const location = "./dist/" + info.dest + "/DevLauncher.mjs";
+            fs.writeFileSync(location, content.code);
+        });
+    });
 }
 
 function bundleApp() {
