@@ -1,5 +1,5 @@
 import ux from "./src/ux.mjs";
-import * as lng from "./src/lightning-spark.js";
+import lng from "./src/lightning-spark.mjs";
 import fetch from "node-fetch";
 
 export default class DevLauncher {
