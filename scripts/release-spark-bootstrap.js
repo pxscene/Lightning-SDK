@@ -78,18 +78,18 @@ function copyAppFiles() {
 
 function createBootstrap() {
   let location = "./dist/" + info.dest + "/src/framework.js";
-  fs.writeFileSync(location,
-    'const fetch = require("node-fetch");\
-    const Headers = fetch.Headers;\
-    const lng = require("./lightning-spark");\
-    const ux = require("./ux");');
+  fs.writeFileSync(location, [
+    'const fetch = require("node-fetch");',
+    'const Headers = fetch.Headers;',
+    'const lng = require("./lightning-spark");',
+    'const ux = require("./ux");'].join("\n"));
 
   location = "./dist/" + info.dest + "/start.spark";
   fs.writeFileSync(location,JSON.stringify({
     "frameworkType":"sparkGL",
     "frameworkURL":"./src/framework.js",
     "applicationURL":"./start.mjs"
-  }));
+  }, null, 2));
 }
 
 function bundleApp() {
