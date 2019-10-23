@@ -4,14 +4,11 @@ const fs = require("fs");
 
 const dir = __dirname + "/..";
 
-const LNG_PATH = require.resolve('wpe-lightning-spark/dist/lightning-spark.mjs');
-
 const info = {};
 getName()
     .then(() => ensureDir())
     .then(() => copySkeleton())
     .then(() => ensureSrcDirs())
-    .then(() => copyLightning())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -62,10 +59,6 @@ function copyMetadata() {
 
 function copyUxFiles() {
     return exec("cp -r " + dir + "/static-ux ./dist/" + info.dest);
-}
-
-function copyLightning() {
-    return exec("cp -r " + LNG_PATH + " ./dist/" + info.dest + "/src/");
 }
 
 function copyAppFiles() {
