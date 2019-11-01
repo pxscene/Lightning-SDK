@@ -12,7 +12,8 @@
     "rollup": "^0.67.0",
     "shelljs": "^0.8.3",
     "targz": "^1.0.1",
-    "wpe-lightning": "https://github.com/WebPlatformForEmbedded/Lightning.git"
+    "wpe-lightning": "https://github.com/WebPlatformForEmbedded/Lightning.git",
+    "wpe-lightning-spark": "https://github.com/pxscene/Lightning-Spark.git"
   },
   "repository": {
     "type": "git",

@@ -1,19 +1,10 @@
-const copy = require('rollup-plugin-copy');
+const resolve = require('rollup-plugin-node-resolve');
 
 export default {
     input: 'start.mjs',
-    plugins: [
-        copy({
-            targets: [
-                { src: [
-                    'node_modules/wpe-lightning-spark/dist/lightning-spark.js',
-                    'node_modules/wpe-lightning-spark/dist/lightning-spark.mjs'],
-                  dest: './src'
-                }
-            ],
-            hook: 'buildStart'
-        })
-    ],
+    plugins: [resolve({
+        only: [ 'wpe-lightning-spark', 'wpe-lightning' ]
+    })],
     output: {
         file: './lightning-demo-spark.js',
         format: 'cjs',
