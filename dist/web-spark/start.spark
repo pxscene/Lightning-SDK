@@ -1,5 +1,5 @@
 {
   "frameworkType": "sparkGL",
-  "frameworkURL": "./js/spark/framework.js",
+  "frameworkURL": "./spark/framework.js",
   "applicationURL": "./start.js"
 }

@@ -80,7 +80,7 @@ function copyLightning() {
 }
 
 function copyLightningSpark() {
-    return exec("cp -r " + LNG_SPARK_PATH + " ./dist/" + info.dest + "/js/spark/");
+    return exec("cp -r " + LNG_SPARK_PATH + " ./dist/" + info.dest + "/spark/");
 }
 
 function copyAppFiles() {
