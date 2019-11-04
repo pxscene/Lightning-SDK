@@ -8,7 +8,7 @@ const path = require("path");
 const dir = __dirname + "/..";
 
 const LNG_PATH = require.resolve('wpe-lightning/dist/lightning-web.js');
-const LNG_SPARK_PATH = require.resolve('wpe-lightning-spark/dist/lightning-spark.js');
+//const LNG_SPARK_PATH = require.resolve('wpe-lightning-spark/dist/lightning-spark.js');
 
 const info = {};
 getName()
@@ -80,7 +80,28 @@ function copyLightning() {
 }
 
 function copyLightningSpark() {
-    return exec("cp -r " + LNG_SPARK_PATH + " ./dist/" + info.dest + "/spark/");
+    //return exec("cp -r " + LNG_SPARK_PATH + " ./dist/" + info.dest + "/spark/");
+
+    /**
+     * things a little bit different for Spark...
+     * For now we avoid adding "wpe-lightning-spark" in package.json, so doing it in place.
+     */
+    const dir = `./dist/${info.dest}/tmp`;
+    const src = `${dir}/node_modules/wpe-lightning-spark/dist/lightning-spark.js`;
+    const dst = `./dist/${info.dest}/spark/`;
+    const pkg = {
+        "name": "tmp",
+        "version": "0.0.1",
+        "dependencies": {
+            "wpe-lightning-spark": "https://github.com/pxscene/Lightning-Spark.git",
+            "rollup-plugin-node-resolve": "^5.0.0"
+        }
+    };
+    return exec(`mkdir -p ${dir}`)
+        .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
+        .then(() => exec(`npm --prefix ${dir} install ${dir}`))
+        .then(() => exec(`cp ${src} ${dst}`))
+        .finally(() => exec(`rm -rf ${dir}`));
 }
 
 function copyAppFiles() {
