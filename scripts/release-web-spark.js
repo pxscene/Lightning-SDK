@@ -7,9 +7,6 @@ const path = require("path");
 
 const dir = __dirname + "/..";
 
-const LNG_PATH = require.resolve('wpe-lightning/dist/lightning-web.js');
-//const LNG_SPARK_PATH = require.resolve('wpe-lightning-spark/dist/lightning-spark.js');
-
 const info = {};
 getName()
     .then(() => ensureDir())
@@ -76,19 +73,29 @@ function copyUxFiles() {
 }
 
 function copyLightning() {
-    return exec("cp -r " + LNG_PATH + " ./dist/" + info.dest + "/js/src/");
+    const dir = `./dist/${info.dest}/tmp`;
+    const src = `${dir}/node_modules/wpe-lightning/src/lightning.mjs`;
+    const dst = `./dist/${info.dest}/js/src/lightning-web.js`;
+    const pkg = {
+        "name": "tmp",
+        "version": "0.0.1",
+        "dependencies": {
+            "wpe-lightning": "https://github.com/WebPlatformForEmbedded/Lightning.git"
+        }
+    };
+    return exec(`mkdir -p ${dir}`)
+      .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
+      .then(() => exec(`npm --prefix ${dir} install ${dir}`))
+      .then(() => rollup.rollup({ input: src }))
+      .then(bundle => bundle.generate({ format: 'iife', name: 'lng' }))
+      .then(content => fs.writeFileSync(dst, content.code))
+      .finally(() => exec(`rm -rf ${dir}`));
 }
 
 function copyLightningSpark() {
-    //return exec("cp -r " + LNG_SPARK_PATH + " ./dist/" + info.dest + "/spark/");
-
-    /**
-     * things a little bit different for Spark...
-     * For now we avoid adding "wpe-lightning-spark" in package.json, so doing it in place.
-     */
     const dir = `./dist/${info.dest}/tmp`;
-    const src = `${dir}/node_modules/wpe-lightning-spark/dist/lightning-spark.js`;
-    const dst = `./dist/${info.dest}/spark/`;
+    const src = `${dir}/node_modules/wpe-lightning-spark/src/platforms/spark/SparkPlatform.mjs`;
+    const dst = `./dist/${info.dest}/spark/SparkPlatform.js`;
     const pkg = {
         "name": "tmp",
         "version": "0.0.1",
@@ -100,7 +107,9 @@ function copyLightningSpark() {
     return exec(`mkdir -p ${dir}`)
         .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
-        .then(() => exec(`cp ${src} ${dst}`))
+        .then(() => rollup.rollup({ input: src }))
+        .then(bundle => bundle.generate({ format: 'cjs', name: 'SparkPlatform' }))
+        .then(content => fs.writeFileSync(dst, content.code))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
@@ -153,8 +162,14 @@ function bundleSparkStartup() {
             format: 'iife',
             globals: glob,
             banner:
-              'eval.call(null, require(\'fs\').readFileSync(__dirname + \'/js/src/ux.js\').toString(\'utf8\'));\n' +
-              'eval.call(null, require(\'fs\').readFileSync(__dirname + \'/js/src/appBundle.js\').toString(\'utf8\'));\n'
+                '(function () {\n' +
+                '    const fs = require(\'fs\');\n' +
+                '    const evalIIFE = path => eval.call(null, fs.readFileSync(path).toString(\'utf8\'));\n' +
+                '    evalIIFE(__dirname + \'/js/src/lightning-web.js\');\n' +
+                '    lng.Stage.platform = SparkPlatform;\n' +
+                '    evalIIFE(__dirname + \'/js/src/ux.js\');\n' +
+                '    evalIIFE(__dirname + \'/js/src/appBundle.js\');\n' +
+                '}());\n'
         }).then(content => {
             const location = "./dist/" + info.dest + "/start.js";
             fs.writeFileSync(location, content.code);
