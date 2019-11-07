@@ -151,7 +151,10 @@ function bundleSparkStartup() {
     }).then(bundle => {
         return bundle.generate({
             format: 'iife',
-            globals: glob
+            globals: glob,
+            banner:
+              'eval.call(null, require(\'fs\').readFileSync(__dirname + \'/js/src/ux.js\').toString(\'utf8\'));\n' +
+              'eval.call(null, require(\'fs\').readFileSync(__dirname + \'/js/src/appBundle.js\').toString(\'utf8\'));\n'
         }).then(content => {
             const location = "./dist/" + info.dest + "/start.js";
             fs.writeFileSync(location, content.code);
