@@ -7,8 +7,6 @@ const path = require("path");
 
 const dir = __dirname + "/..";
 
-const LNG_PATH = require.resolve('wpe-lightning/src/lightning.mjs');
-
 const info = {};
 getName()
     .then(() => ensureDir())
@@ -75,10 +73,21 @@ function copyUxFiles() {
 }
 
 function copyLightning() {
+    const dir = `./dist/${info.dest}/tmp`;
+    const src = `${dir}/node_modules/wpe-lightning/dist/lightning-web.js `;
     const dst = `./dist/${info.dest}/js/src/lightning-web.js`;
-    return rollup.rollup({ input: LNG_PATH })
-      .then(bundle => bundle.generate({ format: 'iife', name: 'lng' }))
-      .then(content => fs.writeFileSync(dst, content.code));
+    const pkg = {
+        "name": "tmp",
+        "version": "0.0.1",
+        "dependencies": {
+            "wpe-lightning": "git+https://github.com/pxscene/Lightning.git#spark"
+        }
+    };
+    return exec(`mkdir -p ${dir}`)
+      .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
+      .then(() => exec(`npm --prefix ${dir} install ${dir}`))
+      .then(() => exec(`cp ${src} ${dst}`))
+      .finally(() => exec(`rm -rf ${dir}`));
 }
 
 function copyLightningSpark() {
