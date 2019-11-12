@@ -3,7 +3,6 @@ const rollup = require('rollup');
 const fs = require("fs");
 const babel = require("@babel/core");
 const babelPresetEnv = require("@babel/preset-env");
-const path = require("path");
 
 const dir = __dirname + "/..";
 
@@ -20,7 +19,6 @@ getName()
     .then(() => copyAppFiles())
     .then(() => bundleUx())
     .then(() => bundleApp())
-    .then(() => bundleSparkStartup())
     .then(() => babelify())
     .then(() => console.log('Web release created! ' + process.cwd() + "/dist/" + info.dest))
     .then(() => console.log('(Use a static web server to host it)'))
@@ -134,42 +132,6 @@ function bundleUx() {
     return rollup.rollup({input: dir + "/js/src/ux.js"}).then(bundle => {
         return bundle.generate({format: 'iife', name: "ux"}).then(content => {
             const location = "./dist/" + info.dest + "/js/src/ux.js";
-            fs.writeFileSync(location, content.code);
-        });
-    });
-}
-
-function bundleSparkStartup() {
-    console.log("Generate startup file for Spark");
-    const glob = {
-        "node-fetch": "fetch",
-        "wpe-lightning-spark": "lng",
-    };
-    glob[path.resolve(dir, "dist/spark", "./src/ux.mjs")] = "ux";
-    glob[path.resolve(dir, "dist/spark", "./src/app.mjs")] = "appBundle";
-    return rollup.rollup({
-        input: dir + "/dist/spark/start.mjs",
-        external: [
-            "node-fetch",
-            "wpe-lightning-spark",
-            "./src/ux.mjs",
-            "./src/app.mjs"
-        ]
-    }).then(bundle => {
-        return bundle.generate({
-            format: 'iife',
-            globals: glob,
-            banner:
-                '(function () {\n' +
-                '    const fs = require(\'fs\');\n' +
-                '    const evalIIFE = path => eval.call(null, fs.readFileSync(path).toString(\'utf8\'));\n' +
-                '    evalIIFE(__dirname + \'/js/src/lightning-web.js\');\n' +
-                '    lng.Stage.platform = SparkPlatform;\n' +
-                '    evalIIFE(__dirname + \'/js/src/ux.js\');\n' +
-                '    evalIIFE(__dirname + \'/js/src/appBundle.js\');\n' +
-                '}());\n'
-        }).then(content => {
-            const location = "./dist/" + info.dest + "/start.js";
             fs.writeFileSync(location, content.code);
         });
     });
