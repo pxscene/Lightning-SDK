@@ -151,7 +151,7 @@ const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/
 
 loadPolyfill.then(function() {
     return loadJsFile("lightning-web.js").then(function() {
-        if (scriptsToEval.length > 0 && typeof SparkPlatform !== 'undefined') {
+        if (scriptsToEval.length > 0 && typeof SparkPlatform !== 'undefined') { // lng.Utils.isSpark
             scriptsToEval.push("lng.Stage.platform = SparkPlatform;");
         }
         return loadJsFile("ux.js").then(function() {
