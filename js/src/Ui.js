@@ -2,10 +2,6 @@ import Mediaplayer from "./Mediaplayer.js";
 import NoopMediaplayer from "./NoopMediaplayer.js";
 import ScaledImageTexture from "./ScaledImageTexture.js";
 
-if (lng.Utils.isSpark) {
-    import SparkMediaplayer from "wpe-lightning-spark/src/platforms/spark/SparkMediaplayer.mjs";
-}
-
 export default class Ui extends lng.Application {
 
     constructor(options) {
@@ -15,16 +11,8 @@ export default class Ui extends lng.Application {
     }
 
     static _template() {
-        let mediaPlayerType = NoopMediaplayer;
-        if (lng.Utils.isWeb) {
-            mediaPlayerType = Mediaplayer;
-        }
-        else if (lng.Utils.isSpark) {
-            mediaPlayerType = SparkMediaplayer;
-        }
-
         return {
-            Mediaplayer: {type: mediaPlayerType, textureMode: Ui.hasOption('texture')},
+            Mediaplayer: {type: lng.Utils.isWeb ? Mediaplayer : NoopMediaplayer, textureMode: Ui.hasOption('texture')},
             AppWrapper: {}
         };
     }
