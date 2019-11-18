@@ -1,3 +1,4 @@
-const fetch = require("node-fetch");
-const Headers = fetch.Headers;
-const SparkPlatform = require("./SparkPlatform");
+global.fetch = require("node-fetch");
+global.Headers = global.fetch.Headers;
+import SparkPlatform from "./SparkPlatform";
+global.SparkPlatform = SparkPlatform;

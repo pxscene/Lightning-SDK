@@ -91,7 +91,7 @@ function copyLightning() {
 function copyLightningSpark() {
     const dir = `./dist/${info.dest}/tmp`;
     const src = `${dir}/node_modules/wpe-lightning-spark/src/platforms/spark/SparkPlatform.mjs`;
-    const dst = `./dist/${info.dest}/spark/SparkPlatform.js`;
+    const dst = `./dist/${info.dest}/spark/SparkPlatform.mjs`;
     const pkg = {
         "name": "tmp",
         "version": "0.0.1",
@@ -103,9 +103,7 @@ function copyLightningSpark() {
     return exec(`mkdir -p ${dir}`)
         .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
-        .then(() => rollup.rollup({ input: src }))
-        .then(bundle => bundle.generate({ format: 'cjs', name: 'SparkPlatform' }))
-        .then(content => fs.writeFileSync(dst, content.code))
+        .then(() => exec(`cp ${src} ${dst}`))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
