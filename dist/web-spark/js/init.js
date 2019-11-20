@@ -49,6 +49,7 @@ function startApp() {
     };
 
     if (!lng.Utils.isSpark) {
+        // TODO: why it fails for Spark
         options.stage.defaultFontFace ='RobotoRegular';
     }
 
@@ -72,7 +73,11 @@ function startApp() {
         var bootstrap = new ux.Ui(options);
         bootstrap.startApp(appBundle);
     } catch (e) {
-        alert("error " + e)
+        if (!lng.Utils.isSpark) {
+            alert("error " + e)
+        } else {
+            console.log("error " + e)
+        }
     }
 
     if (!lng.Utils.isSpark) {
@@ -110,11 +115,12 @@ function isSupportingES6() {
 }
 
 function loadScript(src) {
-    if (typeof document == 'undefined') { // lng.Utils.isSpark
-        return evalURL(`${__dirname}/../${src}`);
-    }
-
     return new Promise(function (resolve, reject) {
+        if (typeof document === 'undefined') {
+            return import(`${__dirname}/../${src}`).then(ex => {
+                resolve((ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex);
+            }, reject);
+        }
         var script = document.createElement('script');
         script.onload = function() {
             resolve();
@@ -129,8 +135,8 @@ function loadScript(src) {
 
 
 // Fetch app store to ensure that proxy/image servers firewall is opened.
-(typeof fetch !== 'undefined' ? fetch : global.fetch)('http://widgets.metrological.com/metrological/nl/test').then(function(){
-});
+//fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
+//});
 
 const supportsEs6 = isSupportingES6();
 const folder = supportsEs6 ? "src" : "src.es5";
@@ -143,7 +149,11 @@ const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/
 loadPolyfill.then(function() {
     return loadJsFile("lightning-web.js").then(function() {
         if (lng.Utils.isSpark) {
-            lng.Stage.platform = global.SparkPlatform;
+            return loadScript(`js/spark/SparkPlatform.js`);
+        }
+    }).then(function(SparkPlatform) {
+        if (lng.Utils.isSpark) {
+            lng.Stage.platform = SparkPlatform;
         }
         return loadJsFile("ux.js").then(function() {
             return Promise.all([
