@@ -10,10 +10,8 @@ const info = {};
 getName()
     .then(() => ensureDir())
     .then(() => copySkeleton())
-    .then(() => copySparkSkeleton())
     .then(() => ensureSrcDirs())
     .then(() => copyLightning())
-    .then(() => copyLightningSpark())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -55,11 +53,8 @@ function ensureDir() {
 }
 
 function copySkeleton() {
-    return exec("cp -r " + dir + "/dist/web ./dist/web-spark");
-}
-
-function copySparkSkeleton() {
-    return exec("cp -r " + dir + "/dist/web-spark ./dist/");
+    return exec("cp -r " + dir + "/dist/web ./dist/" + info.dest)
+        .then(() => exec("cp -r " + dir + "/dist/web-spark ./dist/"));
 }
 
 function copyMetadata() {
@@ -72,40 +67,44 @@ function copyUxFiles() {
 
 function copyLightning() {
     const dir = `./dist/${info.dest}/tmp`;
-    const src = `${dir}/node_modules/wpe-lightning/dist/lightning-web.js `;
-    const dst = `./dist/${info.dest}/js/src/lightning-web.js`;
-    const pkg = {
-        "name": "tmp",
-        "version": "0.0.1",
-        "dependencies": {
-            "wpe-lightning": "git+https://github.com/pxscene/Lightning.git#spark"
-        }
-    };
     return exec(`mkdir -p ${dir}`)
-      .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
-      .then(() => exec(`npm --prefix ${dir} install ${dir}`))
-      .then(() => exec(`cp ${src} ${dst}`))
-      .finally(() => exec(`rm -rf ${dir}`));
-}
-
-function copyLightningSpark() {
-    const dir = `./dist/${info.dest}/tmp`;
-    const src = `${dir}/node_modules/wpe-lightning-spark/src/platforms/spark/SparkPlatform.mjs`;
-    const dst = `./dist/${info.dest}/spark/SparkPlatform.js`;
-    const pkg = {
-        "name": "tmp",
-        "version": "0.0.1",
-        "dependencies": {
-            "wpe-lightning-spark": "https://github.com/pxscene/Lightning-Spark.git",
-            "rollup-plugin-node-resolve": "^5.0.0"
-        }
-    };
-    return exec(`mkdir -p ${dir}`)
-        .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify(pkg)))
+        .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
+            "name": "tmp",
+            "version": "0.0.1",
+            "dependencies": {
+                "wpe-lightning": "git+https://github.com/pxscene/Lightning.git#spark"
+            }
+        })))
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
-        .then(() => rollup.rollup({ input: src }))
-        .then(bundle => bundle.generate({ format: 'cjs', name: 'SparkPlatform' }))
-        .then(content => fs.writeFileSync(dst, content.code))
+        .then(() => rollup.rollup({
+            input: `${dir}/node_modules/wpe-lightning/src/lightning.mjs`
+        }))
+        .then(bundle => bundle.generate({
+            format: 'umd',
+            name: "lng"
+        }))
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/src/lightning-web.js`, content.code))
+        .then(() => exec(`rm -rf ${dir}`))
+        .then(() => exec(`mkdir -p ${dir}`))
+        .then(() => exec(`mkdir -p ./dist/${info.dest}/js/spark`))
+        .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
+            "name": "tmp",
+            "version": "0.0.1",
+            "dependencies": {
+                "wpe-lightning-spark": "https://github.com/pxscene/Lightning-Spark.git",
+                "rollup-plugin-node-resolve": "^5.0.0"
+            }
+        })))
+        .then(() => exec(`npm --prefix ${dir} install ${dir}`))
+        .then(() => rollup.rollup({
+            input: `${dir}/node_modules/wpe-lightning-spark/src/platforms/spark/SparkPlatform.mjs`
+        }))
+        .then(bundle => bundle.generate({
+            format: 'cjs',
+            name: 'SparkPlatform'
+        }))
+        .then(content => content.code.replace(/var lng = .+\n/,"")) // TODO: how to do this normally
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/SparkPlatform.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
@@ -120,7 +119,7 @@ function copyAppFiles() {
 function bundleApp() {
     console.log("Generate rollup bundle for app (src/App.js)");
     return rollup.rollup({input: "./src/App.js"}).then(bundle => {
-        return bundle.generate({format: 'iife', name: "appBundle"}).then(content => {
+        return bundle.generate({format: 'umd', name: "appBundle"}).then(content => {
             const location = "./dist/" + info.dest + "/js/src/appBundle.js";
             fs.writeFileSync(location, content.code);
         });
@@ -130,7 +129,7 @@ function bundleApp() {
 function bundleUx() {
     console.log("Generate rollup bundle for ux");
     return rollup.rollup({input: dir + "/js/src/ux.js"}).then(bundle => {
-        return bundle.generate({format: 'iife', name: "ux"}).then(content => {
+        return bundle.generate({format: 'umd', name: "ux"}).then(content => {
             const location = "./dist/" + info.dest + "/js/src/ux.js";
             fs.writeFileSync(location, content.code);
         });

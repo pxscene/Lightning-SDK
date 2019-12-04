@@ -1,9 +1,4 @@
 function startApp() {
-    const evalHere = code => eval.call(null, code);
-    for (let i = 0; i<scriptsToEval.length;++i) {
-        evalHere(scriptsToEval[i]);
-    }
-
     var useInterval = ux.Ui.getOption("useInterval");
     if (useInterval) {
         console.log('use interval instead of request animation frame');
@@ -54,6 +49,7 @@ function startApp() {
     };
 
     if (!lng.Utils.isSpark) {
+        // TODO: why it fails for Spark
         options.stage.defaultFontFace ='RobotoRegular';
     }
 
@@ -77,7 +73,11 @@ function startApp() {
         var bootstrap = new ux.Ui(options);
         bootstrap.startApp(appBundle);
     } catch (e) {
-        alert("error " + e)
+        if (!lng.Utils.isSpark) {
+            alert("error " + e)
+        } else {
+            console.log("error " + e)
+        }
     }
 
     if (!lng.Utils.isSpark) {
@@ -114,16 +114,13 @@ function isSupportingES6() {
     }
 }
 
-const scriptsToEval = [];
-
 function loadScript(src) {
     return new Promise(function (resolve, reject) {
-        if (typeof document == 'undefined') { // lng.Utils.isSpark
-            scriptsToEval.push(require('fs').readFileSync(`${__dirname}/../${src}`).toString('utf8'));
-            resolve();
-            return;
+        if (typeof document === 'undefined') {
+            return import(`${__dirname}/../${src}`).then(ex => {
+                resolve((ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex);
+            }, reject);
         }
-
         var script = document.createElement('script');
         script.onload = function() {
             resolve();
@@ -138,8 +135,8 @@ function loadScript(src) {
 
 
 // Fetch app store to ensure that proxy/image servers firewall is opened.
-fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
-});
+//fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
+//});
 
 const supportsEs6 = isSupportingES6();
 const folder = supportsEs6 ? "src" : "src.es5";
@@ -151,8 +148,12 @@ const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/
 
 loadPolyfill.then(function() {
     return loadJsFile("lightning-web.js").then(function() {
-        if (scriptsToEval.length > 0 && typeof SparkPlatform !== 'undefined') { // lng.Utils.isSpark
-            scriptsToEval.push("lng.Stage.platform = SparkPlatform;");
+        if (lng.Utils.isSpark) {
+            return loadScript(`js/spark/SparkPlatform.js`);
+        }
+    }).then(function(SparkPlatform) {
+        if (lng.Utils.isSpark) {
+            lng.Stage.platform = SparkPlatform;
         }
         return loadJsFile("ux.js").then(function() {
             return Promise.all([
