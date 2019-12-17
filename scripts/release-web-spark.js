@@ -1,6 +1,7 @@
 const child_process = require("child_process");
 const rollup = require('rollup');
 const fs = require("fs");
+const crypto = require('crypto');
 const babel = require("@babel/core");
 const babelPresetEnv = require("@babel/preset-env");
 
@@ -17,6 +18,7 @@ getName()
     .then(() => copyAppFiles())
     .then(() => bundleUx())
     .then(() => bundleApp())
+    .then(() => createBootstrap())
     .then(() => babelify())
     .then(() => console.log('Web release created! ' + process.cwd() + "/dist/" + info.dest))
     .then(() => console.log('(Use a static web server to host it)'))
@@ -134,6 +136,25 @@ function bundleUx() {
             fs.writeFileSync(location, content.code);
         });
     });
+}
+
+function createBootstrap() {
+    console.log("Create bootstrap");
+    let bootstrap = {
+        "frameworkType": "sparkGL",
+        "applicationURL": "init.js",
+        "frameworks": []
+    };
+    let frameworks = ["src/lightning-web.js", "spark/SparkPlatform.js", "src/ux.js", "src/appBundle.js"];
+    frameworks.forEach(f => {
+        let content = fs.readFileSync(`./dist/${info.dest}/js/${f}`);
+        bootstrap.frameworks.push({
+            url: f,
+            md5: crypto.createHash('md5').update(content).digest('hex')
+        })
+    });
+    const location = `./dist/${info.dest}/js/init.spark`;
+    fs.writeFileSync(location, JSON.stringify(bootstrap, null, 4));
 }
 
 function ensureSrcDirs() {
