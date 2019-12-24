@@ -147,6 +147,10 @@ function loadJsFile(filename) {
 const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/babel-polyfill-6.23.0.js");
 
 loadPolyfill.then(function() {
+    if (lng && lng.Utils.isSpark && (undefined != global.SparkPlatform)) {
+        lng.Stage.platform = global.SparkPlatform;
+        return;
+    }
     return loadJsFile("lightning-web.js").then(function() {
         if (lng.Utils.isSpark) {
             return loadScript(`js/spark/SparkPlatform.js`);
