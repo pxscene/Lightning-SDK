@@ -106,6 +106,7 @@ function copyLightning() {
             name: 'SparkPlatform'
         }))
         .then(content => content.code.replace(/var lng = .+\n/,"")) // TODO: how to do this normally
+        .then(content => content + "global.SparkPlatform = SparkPlatform;") // expose spark platform
         .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/SparkPlatform.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
