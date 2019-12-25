@@ -102,8 +102,9 @@ function copyLightning() {
             input: `${dir}/node_modules/wpe-lightning-spark/src/platforms/spark/SparkPlatform.mjs`
         }))
         .then(bundle => bundle.generate({
-            format: 'cjs',
-            name: 'SparkPlatform'
+            format: 'umd',
+            name: 'SparkPlatform',
+            interop: false
         }))
         .then(content => content.code.replace(/var lng = .+\n/,"")) // TODO: how to do this normally
         .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/SparkPlatform.js`, content))
