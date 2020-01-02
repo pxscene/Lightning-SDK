@@ -117,7 +117,7 @@ function isSupportingES6() {
 function loadScript(src) {
     return new Promise(function (resolve, reject) {
         if (typeof document === 'undefined') {
-            return import(`${__dirname}/../${src}`).then(ex => {
+            return import(`${__dirname}/${src.indexOf('js/') === 0?src.substr(3):src}`).then(ex => {
                 resolve((ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex);
             }, reject);
         }
@@ -147,11 +147,15 @@ function loadJsFile(filename) {
 const loadPolyfill = supportsEs6 ? Promise.resolve() : loadScript("js/polyfills/babel-polyfill-6.23.0.js");
 
 loadPolyfill.then(function() {
+    if (typeof lng !== 'undefined' && lng.Utils.isSpark && typeof SparkPlatform !== 'undefined') {
+        lng.Stage.platform = SparkPlatform;
+        return;
+    }
     return loadJsFile("lightning-web.js").then(function() {
         if (lng.Utils.isSpark) {
             return loadScript(`js/spark/SparkPlatform.js`);
         }
-    }).then(function(SparkPlatform) {
+    }).then(function() {
         if (lng.Utils.isSpark) {
             lng.Stage.platform = SparkPlatform;
         }
