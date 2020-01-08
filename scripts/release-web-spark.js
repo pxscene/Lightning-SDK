@@ -121,7 +121,7 @@ function copyThunder() {
             "name": "tmp",
             "version": "0.0.1",
             "dependencies": {
-                "ThunderJS": "github:WebPlatformForEmbedded/ThunderJS"
+                "ThunderJS": "github:rdkcentral/ThunderJS"
             }
         })))
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
