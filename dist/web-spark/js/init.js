@@ -147,10 +147,12 @@ loadPolyfill.then(function() {
         return;
     }
     return loadJsFile("lightning-web.js").then(function() {
-        return loadJsFile("ux.js").then(function() {
-            return Promise.all([
-                loadJsFile("appBundle.js")
-            ]);
+        return loadJsFile("thunderJS.js").then(function() {
+            return loadJsFile("ux.js").then(function() {
+                return Promise.all([
+                    loadJsFile("appBundle.js")
+                ]);
+            });
         });
     });
 }).catch(function(e) {

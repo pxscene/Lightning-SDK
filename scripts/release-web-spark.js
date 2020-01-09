@@ -136,7 +136,7 @@ function copyThunder() {
             interop: false
         }))
         .then(content => content.code.replace(/var browser = ws;/,"var browser = ws||require('ws');")) // TODO: how to do this normally
-        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/thunderJS.js`, content))
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/src/thunderJS.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
@@ -178,7 +178,7 @@ function createBootstrap() {
     let frameworks = [
         "src/lightning-web.js",
         "spark/SparkPlatform.js",
-        "spark/thunderJS.js",
+        "src/thunderJS.js",
         "src/ux.js",
         "src/appBundle.js"
     ];
