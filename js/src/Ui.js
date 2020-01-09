@@ -15,7 +15,7 @@ export default class Ui extends lng.Application {
         if (lng.Utils.isWeb) {
             mediaPlayerType = Mediaplayer;
         }
-        else if (lng.Utils.isSpark) {
+        else if (lng.Utils.isSpark && lng.Stage.platform.supportsMediaPlayer()) {
             mediaPlayerType = lng.Stage.platform.createMediaPlayer();
         }
 
