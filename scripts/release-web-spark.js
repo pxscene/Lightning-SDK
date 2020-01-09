@@ -127,16 +127,16 @@ function copyThunder() {
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
         .then(() => rollup.rollup({
             input: `${dir}/node_modules/ThunderJS/src/thunderJS.js`,
-            plugins: [resolve(), commonjs()],
+            plugins: [resolve({browser: true}), commonjs()],
             external: ['ws']
         }))
         .then(bundle => bundle.generate({
             format: 'umd',
             name: `ThunderJS`,
-            interop: false,
-            intro: `ws = require('ws');`
+            interop: false
         }))
-        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/thunderJS.js`, content.code))
+        .then(content => content.code.replace(/var browser = ws;/,"var browser = ws||require('ws');")) // TODO: how to do this normally
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/thunderJS.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
