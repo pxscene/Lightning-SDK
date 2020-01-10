@@ -116,11 +116,6 @@ function isSupportingES6() {
 
 function loadScript(src) {
     return new Promise(function (resolve, reject) {
-        if (typeof document === 'undefined') {
-            return import(`${__dirname}/${src.indexOf('js/') === 0?src.substr(3):src}`).then(ex => {
-                resolve((ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex);
-            }, reject);
-        }
         var script = document.createElement('script');
         script.onload = function() {
             resolve();
@@ -152,17 +147,12 @@ loadPolyfill.then(function() {
         return;
     }
     return loadJsFile("lightning-web.js").then(function() {
-        if (lng.Utils.isSpark) {
-            return loadScript(`js/spark/SparkPlatform.js`);
-        }
-    }).then(function() {
-        if (lng.Utils.isSpark) {
-            lng.Stage.platform = SparkPlatform;
-        }
-        return loadJsFile("ux.js").then(function() {
-            return Promise.all([
-                loadJsFile("appBundle.js")
-            ]);
+        return loadJsFile("thunderJS.js").then(function() {
+            return loadJsFile("ux.js").then(function() {
+                return Promise.all([
+                    loadJsFile("appBundle.js")
+                ]);
+            });
         });
     });
 }).catch(function(e) {

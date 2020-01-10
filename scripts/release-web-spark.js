@@ -4,6 +4,8 @@ const fs = require("fs");
 const crypto = require('crypto');
 const babel = require("@babel/core");
 const babelPresetEnv = require("@babel/preset-env");
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
 
 const dir = __dirname + "/..";
 
@@ -13,6 +15,7 @@ getName()
     .then(() => copySkeleton())
     .then(() => ensureSrcDirs())
     .then(() => copyLightning())
+    .then(() => copyThunder())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -111,6 +114,32 @@ function copyLightning() {
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
+function copyThunder() {
+    const dir = `./dist/${info.dest}/tmp`;
+    return exec(`mkdir -p ${dir}`)
+        .then(() => fs.writeFileSync(`${dir}/package.json`, JSON.stringify({
+            "name": "tmp",
+            "version": "0.0.1",
+            "dependencies": {
+                "ThunderJS": "github:rdkcentral/ThunderJS"
+            }
+        })))
+        .then(() => exec(`npm --prefix ${dir} install ${dir}`))
+        .then(() => rollup.rollup({
+            input: `${dir}/node_modules/ThunderJS/src/thunderJS.js`,
+            plugins: [resolve({browser: true}), commonjs()],
+            external: ['ws']
+        }))
+        .then(bundle => bundle.generate({
+            format: 'umd',
+            name: `ThunderJS`,
+            interop: false
+        }))
+        .then(content => content.code.replace(/var browser = ws;/,"var browser = ws||require('ws');")) // TODO: how to do this normally
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/src/thunderJS.js`, content))
+        .finally(() => exec(`rm -rf ${dir}`));
+}
+
 function copyAppFiles() {
     if (fs.existsSync("./static")) {
         return exec("cp -r ./static ./dist/" + info.dest);
@@ -146,7 +175,13 @@ function createBootstrap() {
         "applicationURL": "init.js",
         "frameworks": []
     };
-    let frameworks = ["src/lightning-web.js", "spark/SparkPlatform.js", "src/ux.js", "src/appBundle.js"];
+    let frameworks = [
+        "src/lightning-web.js",
+        "spark/SparkPlatform.js",
+        "src/thunderJS.js",
+        "src/ux.js",
+        "src/appBundle.js"
+    ];
     frameworks.forEach(f => {
         let content = fs.readFileSync(`./dist/${info.dest}/js/${f}`);
         bootstrap.frameworks.push({
