@@ -16,6 +16,7 @@ getName()
     .then(() => ensureSrcDirs())
     .then(() => copyLightning())
     .then(() => copyThunder())
+    .then(() => copyFetch())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -140,6 +141,30 @@ function copyThunder() {
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
+function copyFetch() {
+    const dir = `./dist/${info.dest}/tmp`;
+    return exec(`mkdir -p ${dir}`)
+        .then(() => fs.writeFileSync(`${dir}/fetch.js`, `export default (typeof fetch !== 'undefined'?fetch:require('node-fetch'))`))
+        .then(() => rollup.rollup({
+            input: `${dir}/fetch.js`
+        }))
+        .then(bundle => bundle.generate({
+            format: 'umd',
+            name: `fetch`
+        }))
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetch.js`, content.code))
+        .then(() => fs.writeFileSync(`${dir}/fetchHeaders.js`, `export default fetch.Headers`))
+        .then(() => rollup.rollup({
+            input: `${dir}/fetchHeaders.js`
+        }))
+        .then(bundle => bundle.generate({
+            format: 'umd',
+            name: `Headers`
+        }))
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetchHeaders.js`, content.code))
+        .finally(() => exec(`rm -rf ${dir}`));
+}
+
 function copyAppFiles() {
     if (fs.existsSync("./static")) {
         return exec("cp -r ./static ./dist/" + info.dest);
@@ -178,6 +203,8 @@ function createBootstrap() {
     let frameworks = [
         "src/lightning-web.js",
         "spark/SparkPlatform.js",
+        "spark/fetch.js",
+        "spark/fetchHeaders.js",
         "src/thunderJS.js",
         "src/ux.js",
         "src/appBundle.js"
