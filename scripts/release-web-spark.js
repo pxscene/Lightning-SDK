@@ -136,7 +136,7 @@ function copyThunder() {
             name: `ThunderJS`,
             interop: false
         }))
-        .then(content => content.code.replace(/var browser = ws;/,"var browser = ws||require('ws');")) // TODO: how to do this normally
+        .then(content => content.code.replace('var browser = ws;',"var browser = ws||require('ws');")) // TODO: how to do this normally
         .then(content => fs.writeFileSync(`./dist/${info.dest}/js/src/thunderJS.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
@@ -152,16 +152,8 @@ function copyFetch() {
             format: 'umd',
             name: `fetch`
         }))
-        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetch.js`, content.code))
-        .then(() => fs.writeFileSync(`${dir}/fetchHeaders.js`, `export default fetch.Headers`))
-        .then(() => rollup.rollup({
-            input: `${dir}/fetchHeaders.js`
-        }))
-        .then(bundle => bundle.generate({
-            format: 'umd',
-            name: `Headers`
-        }))
-        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetchHeaders.js`, content.code))
+        .then(content => content.code.replace('global.fetch = factory()','global.fetch = factory(),global.Headers = global.fetch.Headers')) // TODO: how to do this normally
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetch.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
@@ -204,7 +196,6 @@ function createBootstrap() {
         "src/lightning-web.js",
         "spark/SparkPlatform.js",
         "spark/fetch.js",
-        "spark/fetchHeaders.js",
         "src/thunderJS.js",
         "src/ux.js",
         "src/appBundle.js"
