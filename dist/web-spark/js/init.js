@@ -130,8 +130,8 @@ function loadScript(src) {
 
 
 // Fetch app store to ensure that proxy/image servers firewall is opened.
-//fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
-//});
+fetch('http://widgets.metrological.com/metrological/nl/test').then(function(){
+});
 
 const supportsEs6 = isSupportingES6();
 const folder = supportsEs6 ? "src" : "src.es5";

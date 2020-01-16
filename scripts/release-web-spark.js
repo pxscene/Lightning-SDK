@@ -16,6 +16,7 @@ getName()
     .then(() => ensureSrcDirs())
     .then(() => copyLightning())
     .then(() => copyThunder())
+    .then(() => copyFetch())
     .then(() => copyMetadata())
     .then(() => copyUxFiles())
     .then(() => copyAppFiles())
@@ -135,8 +136,30 @@ function copyThunder() {
             name: `ThunderJS`,
             interop: false
         }))
-        .then(content => content.code.replace(/var browser = ws;/,"var browser = ws||require('ws');")) // TODO: how to do this normally
+        .then(content => content.code.replace('var browser = ws;',
+            "var browser = ws||require('ws');")) // TODO: how to do this normally
         .then(content => fs.writeFileSync(`./dist/${info.dest}/js/src/thunderJS.js`, content))
+        .finally(() => exec(`rm -rf ${dir}`));
+}
+
+function copyFetch() {
+    const dir = `./dist/${info.dest}/tmp`;
+    return exec(`mkdir -p ${dir}`)
+        .then(() => fs.writeFileSync(`${dir}/fetch.js`, "import fetch from 'node-fetch';" +
+            "export default (typeof fetch !== 'undefined'?fetch:require('node-fetch'))"))
+        .then(() => rollup.rollup({
+            input: `${dir}/fetch.js`,
+            external: ['node-fetch'],
+            globals: {'node-fetch': 'fetch'}
+        }))
+        .then(bundle => bundle.generate({
+            format: 'umd',
+            name: `fetch`,
+            interop: false
+        }))
+        .then(content => content.code.replace('global.fetch = factory(global.fetch)',
+            'global.fetch = factory(global.fetch),global.Headers = global.fetch.Headers')) // TODO: how to do this normally
+        .then(content => fs.writeFileSync(`./dist/${info.dest}/js/spark/fetch.js`, content))
         .finally(() => exec(`rm -rf ${dir}`));
 }
 
@@ -178,6 +201,7 @@ function createBootstrap() {
     let frameworks = [
         "src/lightning-web.js",
         "spark/SparkPlatform.js",
+        "spark/fetch.js",
         "src/thunderJS.js",
         "src/ux.js",
         "src/appBundle.js"
