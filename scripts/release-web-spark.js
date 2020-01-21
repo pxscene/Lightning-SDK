@@ -208,10 +208,13 @@ function createBootstrap() {
     ];
     frameworks.forEach(f => {
         let content = fs.readFileSync(`./dist/${info.dest}/js/${f}`);
-        bootstrap.frameworks.push({
-            url: f,
-            md5: crypto.createHash('md5').update(content).digest('hex')
-        })
+        let hash = crypto.createHash('md5').update(content).digest('hex')
+        var frameworkData = {}
+        frameworkData['url'] = f
+        if (f != "src/appBundle.js") {
+          frameworkData['md5'] = hash
+        }
+        bootstrap.frameworks.push(frameworkData);
     });
     const location = `./dist/${info.dest}/js/init.spark`;
     fs.writeFileSync(location, JSON.stringify(bootstrap, null, 4));
