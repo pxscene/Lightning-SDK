@@ -8,4 +8,4 @@ sparkview.on('onKeyDown', function(e) {
     launcher._handleKey(e);
 });
 
-launcher.launch(App, {debug:false, h:sparkscene.h}, {useInspector: false});
+launcher.launch(App, {debug:false, h:720}, {useInspector: false});
