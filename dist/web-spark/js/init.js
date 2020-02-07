@@ -70,8 +70,19 @@ function startApp() {
     }
 
     try {
-        var bootstrap = new ux.Ui(options);
-        bootstrap.startApp(appBundle);
+        var bootstrap;
+        if ("appParams" in sparkQueryParams) {
+          var appParams = []
+          eval('appParams=' + sparkQueryParams.appParams);
+          bootstrap = appBundle(options, ...appParams);
+        }
+        else {
+          bootstrap = new ux.Ui(options);
+          bootstrap.startApp(appBundle);
+        }
+        sparkview.on('onKeyDown', function(e) {
+          bootstrap._receiveKeydown(e);
+        });
     } catch (e) {
         if (!lng.Utils.isSpark) {
             alert("error " + e)
