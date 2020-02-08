@@ -32,7 +32,8 @@ function startApp() {
         178: "Stop",
         250: "PlayPause",
         191: "Search", // Use "/" for keyboard
-        409: "Search"
+        409: "Search",
+        50: "EnterRelease"
     };
 
     const memoryPressure = parseInt(ux.Ui.getOption('memoryPressure')) || 16e6;
