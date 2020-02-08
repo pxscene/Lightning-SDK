@@ -32,9 +32,17 @@ function startApp() {
         178: "Stop",
         250: "PlayPause",
         191: "Search", // Use "/" for keyboard
-        409: "Search",
-        50: "EnterRelease"
+        409: "Search"
     };
+
+    // pass key maps in command line
+    if ("navigationKeys" in sparkQueryParams) {
+      var navigationMap = {}
+      eval('navigationMap=' + sparkQueryParams.navigationKeys);
+      for (var key in navigationMap) {
+        navigationKeys[key] = navigationMap[key]
+      }
+    }
 
     const memoryPressure = parseInt(ux.Ui.getOption('memoryPressure')) || 16e6;
     console.log('GPU memory pressure: ' + memoryPressure);
