@@ -104,7 +104,7 @@ export default class Ui extends lng.Application {
                                 };
 
                                 // Preload fonts.
-                                const fonts = this._currentApp.type.getFonts().concat(Ui.getFonts());
+                                const fonts = ((this._currentApp.type.config && this._currentApp.type.config.fonts) || (this._currentApp.type.getFonts && this._currentApp.type.getFonts()) || []).concat(Ui.getFonts());
                                 let fn = lng.Utils.isWeb ? Ui.loadFonts(fonts): this.loadPlatformFonts(fonts);
                                 fn.then((fontFaces) => {
                                     this._currentApp.fontFaces = fontFaces;
