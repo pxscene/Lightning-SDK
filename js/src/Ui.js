@@ -120,7 +120,12 @@ export default class Ui extends lng.Application {
                         },
                         class Started extends this {
                             $enter() {
-                                this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type}];
+                                if (this._options.appData && this._options.platformSettings) {
+                                    // appdata not passed currently
+                                    this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type, forceZIndexContext: !!this._options.platformSettings.showVersion}];
+                                } else {
+                                    this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type}];
+                                }
                             }
                             $exit() {
                                 this.tag("AppWrapper").children = [];
