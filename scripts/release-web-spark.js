@@ -78,7 +78,7 @@ function copyLightning() {
             "name": "tmp",
             "version": "0.0.1",
             "dependencies": {
-                "wpe-lightning": "git+https://github.com/madanagopaltcomcast/Lightning.git#spark"
+                "wpe-lightning": "git+https://github.com/WebPlatformForEmbedded/Lightning.git#spark"
             }
         })))
         .then(() => exec(`npm --prefix ${dir} install ${dir}`))
@@ -97,7 +97,7 @@ function copyLightning() {
             "name": "tmp",
             "version": "0.0.1",
             "dependencies": {
-                "wpe-lightning-spark": "https://github.com/madanagopaltcomcast/Lightning-Spark.git",
+                "wpe-lightning-spark": "https://github.com/WebPlatformForEmbedded/Lightning-Spark.git",
                 "rollup-plugin-node-resolve": "^5.0.0"
             }
         })))
