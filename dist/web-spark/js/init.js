@@ -105,11 +105,6 @@ function startApp() {
         document.body.appendChild(canvas);
 
         window.app = bootstrap;
-    } else {
-        sparkview.on('onKeyDown', function(e) {
-            console.log('webgl onKeyDown keyCode:', e.keyCode);
-            bootstrap._receiveKeydown(e);
-        });
     }
 }
 
