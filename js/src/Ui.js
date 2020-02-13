@@ -104,7 +104,7 @@ export default class Ui extends lng.Application {
                                 };
 
                                 // Preload fonts.
-                                const fonts = this._currentApp.type.getFonts().concat(Ui.getFonts());
+                                const fonts = ((this._currentApp.type.config && this._currentApp.type.config.fonts) || (this._currentApp.type.getFonts && this._currentApp.type.getFonts()) || []).concat(Ui.getFonts());
                                 let fn = lng.Utils.isWeb ? Ui.loadFonts(fonts): this.loadPlatformFonts(fonts);
                                 fn.then((fontFaces) => {
                                     this._currentApp.fontFaces = fontFaces;
@@ -120,7 +120,12 @@ export default class Ui extends lng.Application {
                         },
                         class Started extends this {
                             $enter() {
-                                this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type}];
+                                if (this._options.appData && this._options.platformSettings) {
+                                    // appdata not passed currently
+                                    this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type, forceZIndexContext: !!this._options.platformSettings.showVersion}];
+                                } else {
+                                    this.tag("AppWrapper").children = [{ref: "App", type: this._currentApp.type}];
+                                }
                             }
                             $exit() {
                                 this.tag("AppWrapper").children = [];

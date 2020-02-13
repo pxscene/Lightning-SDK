@@ -35,6 +35,15 @@ function startApp() {
         409: "Search"
     };
 
+    // pass key maps in command line
+    if ("navigationKeys" in sparkQueryParams) {
+      var navigationMap = {}
+      eval('navigationMap=' + sparkQueryParams.navigationKeys);
+      for (var key in navigationMap) {
+        navigationKeys[key] = navigationMap[key]
+      }
+    }
+
     const memoryPressure = parseInt(ux.Ui.getOption('memoryPressure')) || 16e6;
     console.log('GPU memory pressure: ' + memoryPressure);
 
@@ -70,8 +79,19 @@ function startApp() {
     }
 
     try {
-        var bootstrap = new ux.Ui(options);
-        bootstrap.startApp(appBundle);
+        var bootstrap;
+        if ("appParams" in sparkQueryParams) {
+          var appParams = []
+          eval('appParams=' + sparkQueryParams.appParams);
+          bootstrap = appBundle(options, ...appParams);
+        }
+        else {
+          bootstrap = new ux.Ui(options);
+          bootstrap.startApp(appBundle);
+        }
+        sparkview.on('onKeyDown', function(e) {
+          bootstrap._receiveKeydown(e);
+        });
     } catch (e) {
         if (!lng.Utils.isSpark) {
             alert("error " + e)
@@ -85,11 +105,6 @@ function startApp() {
         document.body.appendChild(canvas);
 
         window.app = bootstrap;
-    } else {
-        sparkview.on('onKeyDown', function(e) {
-            console.log('webgl onKeyDown keyCode:', e.keyCode);
-            bootstrap._receiveKeydown(e);
-        });
     }
 }
 
