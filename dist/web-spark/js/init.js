@@ -86,7 +86,7 @@ function startApp() {
 
         window.app = bootstrap;
     } else {
-        sparkview.on('onKeyDown', function(e) {
+        sparkscene.root.on('onKeyDown', function(e) {
             console.log('webgl onKeyDown keyCode:', e.keyCode);
             bootstrap._receiveKeydown(e);
         });
