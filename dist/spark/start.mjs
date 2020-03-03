@@ -3,7 +3,7 @@ import App from "./src/app.mjs";
 
 const launcher = new DevLauncher();
 
-sparkview.on('onKeyDown', function(e) {
+sparkscene.root.on('onKeyDown', function(e) {
     //console.log('webgl onKeyDown keyCode:', e.keyCode);
     launcher._handleKey(e);
 });
