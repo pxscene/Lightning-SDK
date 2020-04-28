@@ -6,8 +6,9 @@
     "postinstall": "rollup -c"
   },
   "dependencies": {
+    "rollup": "^1.10.0",
     "esm": "^3.2.11",
-    "wpe-lightning-spark": "https://github.com/pxscene/Lightning-Spark.git",
+    "wpe-lightning": "https://github.com/pxscene/Lightning.git#spark",
     "node-fetch": "^1.7.3"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import ux from "./src/ux.mjs";
-import lng from 'wpe-lightning-spark';
+import lng from 'wpe-lightning/src/lightning.mjs';
 import fetch from "node-fetch";
 
 export default class DevLauncher {
@@ -8,6 +8,9 @@ export default class DevLauncher {
     }
 
     launch(appType, lightningOptions, options = {}) {
+        if (undefined != global.LIGHTNING_PLATFORM) {
+          lng.Stage.platform = global.LIGHTNING_PLATFORM;
+        }
         this._appType = appType;
         this._options = options;
         return this._start(lightningOptions);

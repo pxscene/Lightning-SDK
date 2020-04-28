@@ -3,11 +3,11 @@ const resolve = require('rollup-plugin-node-resolve');
 export default {
     input: 'start.mjs',
     plugins: [resolve({
-        only: [ 'wpe-lightning-spark', 'wpe-lightning' ]
+        only: [ 'wpe-lightning' ]
     })],
     output: {
-        file: './lightning-demo-spark.js',
-        format: 'cjs',
+        file: './lightning-demo-spark.mjs',
+        format: 'esm',
         name: 'lng'
     }
 };
